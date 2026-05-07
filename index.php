@@ -1,6 +1,3 @@
-<h1>jaa dit werkt</h1>
-
-
 <!doctype html>
 <html lang="nl">
 <head>
