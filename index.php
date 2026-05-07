@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="CareChat is een veilige digitale balie-assistent voor praktijken: minder telefoondruk, betere doorverwijzing en menselijke overname wanneer dat nodig is.">
-    <title>CareChat | Digitale balie-assistent voor praktijken</title>
+    <title>CareChat</title>
     <link rel="stylesheet" href="assets/css/styles.css">
 </head>
 <body>
