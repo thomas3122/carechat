@@ -15,9 +15,9 @@ const game = {
     running: false,
     finished: false,
     lastTick: 0,
-    basket: { x: 760, y: 386, w: 130, h: 88, direction: 1 },
-    player: { x: 180, y: 404, angle: -38 },
-    cucumber: null,
+    basket: { x: 724, y: 348, w: 178, h: 124, direction: 1 },
+    player: { x: 180, y: 404, angle: -36 },
+    banana: null,
 };
 
 function showMessage(title, detail) {
@@ -39,10 +39,10 @@ function resetGame() {
     game.timeLeft = 45;
     game.running = false;
     game.finished = false;
-    game.player.angle = -38;
-    game.basket.x = 760;
+    game.player.angle = -36;
+    game.basket.x = 724;
     game.basket.direction = 1;
-    game.cucumber = null;
+    game.banana = null;
     updateHud();
     showMessage("Start klaar", "Gebruik pijltjes of A/D om te richten. Spatie of de knop gooit.");
     draw();
@@ -57,8 +57,8 @@ function startGame() {
     hideMessage();
 }
 
-function throwCucumber() {
-    if (game.cucumber) {
+function throwBanana() {
+    if (game.banana) {
         return;
     }
 
@@ -67,7 +67,7 @@ function throwCucumber() {
     const radians = (game.player.angle * Math.PI) / 180;
     const speed = 760;
 
-    game.cucumber = {
+    game.banana = {
         x: game.player.x + 46,
         y: game.player.y - 84,
         vx: Math.cos(radians) * speed,
@@ -83,10 +83,10 @@ function aim(delta) {
 function finish(won) {
     game.running = false;
     game.finished = true;
-    game.cucumber = null;
+    game.banana = null;
 
     if (won) {
-        showMessage("Mand gevuld", "Johannes Wilhelmus de 4de heeft alle komkommers netjes bezorgd.");
+        showMessage("Festivalmand gevuld", "Johannes Wilhelmus de 4de heeft alle bananen netjes bezorgd.");
     } else {
         showMessage("Tijd voorbij", "Druk op Opnieuw en probeer de mand sneller te raken.");
     }
@@ -105,35 +105,35 @@ function update(deltaSeconds) {
         return;
     }
 
-    game.basket.x += game.basket.direction * 130 * deltaSeconds;
-    if (game.basket.x < 650 || game.basket.x > 820) {
+    game.basket.x += game.basket.direction * 120 * deltaSeconds;
+    if (game.basket.x < 625 || game.basket.x > 775) {
         game.basket.direction *= -1;
     }
 
-    if (game.cucumber) {
-        game.cucumber.vy += 1120 * deltaSeconds;
-        game.cucumber.x += game.cucumber.vx * deltaSeconds;
-        game.cucumber.y += game.cucumber.vy * deltaSeconds;
-        game.cucumber.rotation += 5 * deltaSeconds;
+    if (game.banana) {
+        game.banana.vy += 1120 * deltaSeconds;
+        game.banana.x += game.banana.vx * deltaSeconds;
+        game.banana.y += game.banana.vy * deltaSeconds;
+        game.banana.rotation += 5 * deltaSeconds;
 
-        const c = game.cucumber;
+        const c = game.banana;
         const b = game.basket;
         const hit =
-            c.x > b.x &&
-            c.x < b.x + b.w &&
-            c.y > b.y &&
+            c.x > b.x + 28 &&
+            c.x < b.x + b.w - 28 &&
+            c.y > b.y + 42 &&
             c.y < b.y + b.h;
 
         if (hit) {
             game.score += 1;
-            game.cucumber = null;
+            game.banana = null;
             updateHud();
 
             if (game.score >= game.targetScore) {
                 finish(true);
             }
         } else if (c.y > canvas.height + 70 || c.x > canvas.width + 80 || c.x < -80) {
-            game.cucumber = null;
+            game.banana = null;
         }
     }
 
@@ -219,47 +219,70 @@ function drawBasket() {
 
     ctx.save();
     ctx.translate(b.x, b.y);
-    ctx.strokeStyle = "#9b6335";
-    ctx.lineWidth = 10;
+
+    ctx.fillStyle = "#f8d97a";
     ctx.beginPath();
-    ctx.arc(b.w / 2, 12, 48, Math.PI, 0);
+    ctx.moveTo(20, 38);
+    ctx.quadraticCurveTo(b.w / 2, -28, b.w - 20, 38);
+    ctx.lineTo(b.w - 4, b.h - 14);
+    ctx.quadraticCurveTo(b.w / 2, b.h + 18, 4, b.h - 14);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.strokeStyle = "#b57334";
+    ctx.lineWidth = 8;
     ctx.stroke();
 
-    ctx.fillStyle = "#c88345";
-    ctx.fillRect(0, 22, b.w, b.h - 22);
-    ctx.fillStyle = "#a96a35";
-    for (let x = 10; x < b.w; x += 24) {
-        ctx.fillRect(x, 26, 9, b.h - 28);
+    ctx.fillStyle = "#7b4528";
+    ctx.beginPath();
+    ctx.ellipse(b.w / 2, 73, 58, 34, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = "#fff8dd";
+    ctx.font = "900 24px system-ui";
+    ctx.textAlign = "center";
+    ctx.fillText("KITO", b.w / 2, 36);
+
+    ctx.strokeStyle = "#d89a44";
+    ctx.lineWidth = 5;
+    for (let x = 28; x < b.w - 20; x += 28) {
+        ctx.beginPath();
+        ctx.moveTo(x, 45);
+        ctx.lineTo(x - 10, b.h - 12);
+        ctx.stroke();
     }
-    ctx.fillStyle = "#e2a762";
-    ctx.fillRect(0, 50, b.w, 12);
     ctx.restore();
 }
 
-function drawCucumber() {
-    if (!game.cucumber) {
+function drawBanana() {
+    if (!game.banana) {
         return;
     }
 
-    const c = game.cucumber;
+    const c = game.banana;
     ctx.save();
     ctx.translate(c.x, c.y);
     ctx.rotate(c.rotation);
-    ctx.fillStyle = "#1f8d59";
+
+    ctx.strokeStyle = "#f3c431";
+    ctx.lineWidth = 18;
+    ctx.lineCap = "round";
     ctx.beginPath();
-    ctx.moveTo(-28, -10);
-    ctx.lineTo(28, -10);
-    ctx.quadraticCurveTo(38, -10, 38, 0);
-    ctx.quadraticCurveTo(38, 10, 28, 10);
-    ctx.lineTo(-28, 10);
-    ctx.quadraticCurveTo(-38, 10, -38, 0);
-    ctx.quadraticCurveTo(-38, -10, -28, -10);
-    ctx.fill();
-    ctx.fillStyle = "#c7ef7a";
+    ctx.moveTo(-34, -10);
+    ctx.quadraticCurveTo(0, 20, 38, -7);
+    ctx.stroke();
+
+    ctx.strokeStyle = "#ffe680";
+    ctx.lineWidth = 6;
     ctx.beginPath();
-    ctx.arc(-25, -2, 3, 0, Math.PI * 2);
-    ctx.arc(0, 5, 3, 0, Math.PI * 2);
-    ctx.arc(24, -4, 3, 0, Math.PI * 2);
+    ctx.moveTo(-20, -4);
+    ctx.quadraticCurveTo(3, 12, 27, -3);
+    ctx.stroke();
+
+    ctx.fillStyle = "#6b4a21";
+    ctx.beginPath();
+    ctx.arc(-37, -11, 4, 0, Math.PI * 2);
+    ctx.arc(40, -8, 4, 0, Math.PI * 2);
     ctx.fill();
     ctx.restore();
 }
@@ -286,7 +309,7 @@ function draw() {
     drawPowerLine();
     drawBasket();
     drawPlayer();
-    drawCucumber();
+    drawBanana();
 }
 
 function loop(timestamp) {
@@ -313,13 +336,13 @@ document.addEventListener("keydown", (event) => {
 
     if (event.code === "Space") {
         event.preventDefault();
-        throwCucumber();
+        throwBanana();
     }
 });
 
 leftButton.addEventListener("click", () => aim(-4));
 rightButton.addEventListener("click", () => aim(4));
-throwButton.addEventListener("click", throwCucumber);
+throwButton.addEventListener("click", throwBanana);
 restartButton.addEventListener("click", resetGame);
 
 resetGame();
